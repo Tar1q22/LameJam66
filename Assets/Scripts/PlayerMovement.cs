@@ -1,17 +1,23 @@
+using System;
 using System.Linq;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEditor.Analytics;
 using UnityEditor.Callbacks;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    float xScale;
     InputAction moveAction;
     InputAction jumpAction;
     InputAction attackAction;
+    InputAction lookAction;
     public GameObject bulletPrefab;
+    public GameObject headSprite;
+
     [SerializeField] float jumpForce = 6;
     [SerializeField] float acceleration = 5;
     [SerializeField] float maxSpeed = 2;
@@ -21,29 +27,43 @@ public class PlayerMovement : MonoBehaviour
     bool attackValue;
     Rigidbody2D rb;
     BoxCollider2D bc;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
         attackAction = InputSystem.actions.FindAction("Attack");
+        lookAction = InputSystem.actions.FindAction("Look");
         rb = GetComponent<Rigidbody2D>();
         bc = GetComponent<BoxCollider2D>();
+        xScale = transform.localScale.x;
     }
 
     // Update is called once per frame
     void Update()
     {
-        print(Grounded());
+        //print(Grounded());
         xMovement = moveAction.ReadValue<Vector2>().x;
+        if (xMovement < 0)
+        {
+            transform.localScale = new Vector2(-1*xScale, transform.localScale.y);
+        }
+        else if (xMovement > 0)
+        {
+            transform.localScale = new Vector2(xScale, transform.localScale.y);
+        }
         if (jumpAction.WasPressedThisFrame() && Grounded()){
             // print(jumpValue);
             rb.AddForce(Vector2.up*jumpForce, ForceMode2D.Impulse);
         }
         if (attackAction.WasPressedThisFrame())
         {
-            Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+            Instantiate(bulletPrefab, headSprite.transform.position, Quaternion.identity); 
         }
+        Vector2 dirToMouse = ((Vector2)Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - (Vector2)transform.position).normalized;
+        float mouseDirDeg = (float)Math.Atan2(dirToMouse.y, dirToMouse.x) * Mathf.Rad2Deg;
+        headSprite.transform.rotation = Quaternion.Euler(0, 0, mouseDirDeg);
     }
 
     void FixedUpdate()
