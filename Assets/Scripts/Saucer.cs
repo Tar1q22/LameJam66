@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Saucer : MonoBehaviour
@@ -6,11 +7,18 @@ public class Saucer : MonoBehaviour
     Vector2 dir = Vector2.right;
     float targetY = 4f;
     BoxCollider2D bc;
+    private float shootCooldown = 1f;
+    private float nextShotTime;
+
+    [SerializeField] GameObject laser;
+    [SerializeField] GameObject gameLogic;
+    GameLogic logic;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         transform.position = new Vector2(-12, targetY);
         bc = GetComponent<BoxCollider2D>();
+        logic = FindAnyObjectByType<GameLogic>();
     }
 
     // Update is called once per frame
@@ -51,7 +59,13 @@ public class Saucer : MonoBehaviour
                 }
             }
         }
-
+        
+        
+        if (Time.time >= nextShotTime)
+        {
+            Shoot();
+            nextShotTime = Time.time + shootCooldown+ Random.Range(-0.3f, 0.3f);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -62,8 +76,16 @@ public class Saucer : MonoBehaviour
         }
     }
 
-    void Explode(GameObject bullet)
+    void Shoot()
     {
+        Instantiate(laser, transform.position, Quaternion.identity);
+    }
+
+    private void Explode(GameObject bullet)
+    {
+        GameLogic.Instance.AddScore(10);
+        GameLogic.Instance.enemiesLeft--;
+
         Destroy(bullet);
         Destroy(gameObject);
     }

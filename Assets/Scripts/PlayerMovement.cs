@@ -17,16 +17,20 @@ public class PlayerMovement : MonoBehaviour
     InputAction lookAction;
     public GameObject bulletPrefab;
     public GameObject headSprite;
+    private AudioSource audioSource;
+    [SerializeField] AudioClip shootSound;
 
     [SerializeField] float jumpForce = 6;
     [SerializeField] float acceleration = 5;
-    [SerializeField] float maxSpeed = 2;
+    [SerializeField] float maxSpeed = 3;
+    [SerializeField] float shootCooldown = 0.5f;
 
     float xMovement;
     bool jumpValue;
     bool attackValue;
     Rigidbody2D rb;
     BoxCollider2D bc;
+    float nextShotTime;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
         lookAction = InputSystem.actions.FindAction("Look");
         rb = GetComponent<Rigidbody2D>();
         bc = GetComponent<BoxCollider2D>();
+        audioSource = GetComponent<AudioSource>();
         xScale = transform.localScale.x;
     }
 
@@ -57,9 +62,11 @@ public class PlayerMovement : MonoBehaviour
             // print(jumpValue);
             rb.AddForce(Vector2.up*jumpForce, ForceMode2D.Impulse);
         }
-        if (attackAction.WasPressedThisFrame())
+        if (attackAction.WasPressedThisFrame() && Time.time > nextShotTime)
         {
             Instantiate(bulletPrefab, headSprite.transform.position, Quaternion.identity); 
+            nextShotTime = Time.time + shootCooldown;
+            audioSource.PlayOneShot(shootSound);
         }
         Vector2 dirToMouse = ((Vector2)Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()) - (Vector2)transform.position).normalized;
         float mouseDirDeg = (float)Math.Atan2(dirToMouse.y, dirToMouse.x) * Mathf.Rad2Deg;
