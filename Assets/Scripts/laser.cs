@@ -12,5 +12,9 @@ public class laser : MonoBehaviour
     void Update()
     {
         transform.position = (Vector2)transform.position+Vector2.down*speed*Time.deltaTime;
+        if (transform.position.y < -12)
+        {
+            Destroy(gameObject);
+        }
     }
 }

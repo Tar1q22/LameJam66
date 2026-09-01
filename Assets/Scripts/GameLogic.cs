@@ -12,7 +12,6 @@ public class GameLogic : MonoBehaviour
     float currentTime;
     float timeAtLastWave = 0;
     
-    bool spawning = false;
     public int enemiesLeft = 0;
     public static GameLogic Instance;
 
@@ -45,13 +44,11 @@ public class GameLogic : MonoBehaviour
     private System.Collections.IEnumerator SpawnWave(int size)
     {
         enemiesLeft = size;
-        spawning = true;
         for (int i = 0; i<size; i++)
         {
             Instantiate(saucer);
             yield return new WaitForSeconds(1);
         }
-        spawning = false;
         timeAtLastWave = Time.time;
     }
 

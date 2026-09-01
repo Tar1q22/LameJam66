@@ -2,9 +2,7 @@ using System;
 using System.Linq;
 using Unity.Mathematics;
 using Unity.VisualScripting;
-using UnityEditor.Analytics;
-using UnityEditor.Callbacks;
-using UnityEditor.Experimental.GraphView;
+// Editor-only namespaces removed so this runtime script compiles in player builds
 using UnityEngine;
 using UnityEngine.InputSystem;
 
